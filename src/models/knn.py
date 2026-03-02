@@ -185,7 +185,7 @@ def predict_image_emotion(image_path, X_train, Y_train, k, labels):
     #1. load the image in with opencv, turn it greyscale and resize it to 48X48
     image_vector = 0
 
-    #2. flatten the image into a vector and normalize it
+    #2. flatten the image into a vector and normalize it with flaot32 or float64
 
 
     #3. use knn_predict_one to predict the emotion of the image and return it 
