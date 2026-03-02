@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.so
+
+# Virtual environments
+venv/
+env/
+.venv/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
+
+# Data (DO NOT COMMIT DATASETS)
+data/raw/*
+data/processed/*
+
+# Except keep folders
+!data/raw/.gitkeep
+!data/processed/.gitkeep
