@@ -16,10 +16,12 @@ env/
 # OS
 .DS_Store
 
-# Data (DO NOT COMMIT DATASETS)
+# Data & Images (DO NOT COMMIT DATASETS AND IMAGES)
 data/raw/*
 data/processed/*
+tests/assets/*
 
 # Except keep folders
 !data/raw/.gitkeep
 !data/processed/.gitkeep
+!tests/assets/.gitkeep

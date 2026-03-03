@@ -31,13 +31,13 @@ Baseline system (Milestone 1 – Progress Submission):
 ## Target Emotions
 
 For the baseline system, we classify:
-	•	Angry
-	•	Disgust
-	•	Fear
-	•	Happy
-	•	Sad
-	•	Surprise
-	•	Neutral
+- Angry
+- Disgust
+- Fear
+- Happy
+- Sad
+- Surprise
+- Neutral
 
 ---
 
@@ -91,7 +91,7 @@ Primary dataset for baseline:
 - Well-documented and commonly used
 
 Additional dataset (optional later):
-	•	Facial Expression Dataset by Aaditya Singhal
+- Facial Expression Dataset by Aaditya Singhal
 
 ---
 
@@ -102,11 +102,17 @@ Additional dataset (optional later):
 │   └── processed/
 ├── reports/
 ├── src/
-│   ├── preprocess/
 │   ├── data/
 │   ├── models/
-│   └── pipeline/
+│   │   └── knn.py
+│   ├── pipeline/
+│   │   └── run.py
+│   └── preprocess/
+│       └── face_preprocess.py
 ├── scripts/
+├── tests/
+│   ├── assets/
+│   └── test_preprocess.py
 ├── requirements.txt
 └── README.md
 ```
@@ -130,4 +136,20 @@ pip install -r requirements.txt
 ### 3. Run pipeline (in progress)
 ```bash
 python -m src.pipeline.run
+```
+
+---
+
+## Testing
+
+We use `pytest` to validate core components of the system.
+
+### Run all tests
+```bash
+python -m pytest
+```
+
+### Run a specific test file
+```bash
+python -m pytest tests/test_preprocess.py
 ```
