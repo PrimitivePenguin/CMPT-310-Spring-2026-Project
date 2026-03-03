@@ -20,10 +20,10 @@ def detect_largest_face(grayscale_img):
         tuple (x, y, w, h): Bounding box coordinates if face found.
         None: If no face found.
     """
-    faces = face_cascade(
+    faces = face_cascade.detectMultiScale(
         grayscale_img,
         scaleFactor=1.1,
-        minNeighbours=5,
+        minNeighbors=5,
         minSize=(30,30)
     )
 
