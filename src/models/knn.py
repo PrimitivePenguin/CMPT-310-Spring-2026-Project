@@ -33,7 +33,7 @@ def image_to_vectors(training_data, labels):
             flatten_image = image.astype(np.float32).flatten() #turn into vector and normalize
 
             X_train.append(flatten_image)
-            Y_train.append(LABELS[i])
+            Y_train.append(labels[i])
 
     
     return np.array(X_train), np.array(Y_train)
@@ -173,8 +173,6 @@ def evaluate_knn(training_data, labels, k, num_folds):
 
     X_train, X_val, Y_train, Y_val = train_test_split(X_train, Y_train, test_size=0.25, random_state=13) 
 
-    k = 3
-    num_folds = 10
     accuracy_score, f1_score = cross_validate_knn(X_train, Y_train, k, labels, num_folds)
 
     print("KNN Classification Results k = " + str(k) + ":\n")
