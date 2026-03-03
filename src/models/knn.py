@@ -1,15 +1,15 @@
 import numpy as np
 import cv2
 import glob
+import os
 from sklearn.model_selection import StratifiedKFold
+from src.config import IMAGE_SIZE, LABELS, RAW_TRAIN_DIR
 
-training_data_path = "data/raw/train/"
-labels = ["angry", "disgust", "fear", "happy", "sad", "surprise", "neutral"]
 training_data = []
 
 #getting a glob to all images for each label classification
-for label in labels:
-    training_data.append(training_data_path + label + "/*.jpg")
+for label in LABELS:
+    training_data.append(os.path.join(RAW_TRAIN_DIR, label, "*.jpg"))
 
 # might change image_to_vectors to this.    
 # will load data from already processed vectors from data/processed
@@ -29,7 +29,7 @@ def image_to_vectors(training_data, labels):
             if image is None:
                 continue
 
-            image = cv2.resize(image, (48, 48))
+            image = cv2.resize(image, (IMAGE_SIZE, IMAGE_SIZE))
             flatten_image = image.astype(np.float32).flatten() #turn into vector and normalize
 
             X_train.append(flatten_image)
@@ -167,14 +167,12 @@ def cross_validate_knn(X_train, Y_train, k_values, labels, num_folds):
 
 # runs cross validation and outputs the average accuracy and F1 score across all folds
 def evaluate_knn(training_data, labels, k, num_folds):
-    X_train, Y_train = load_training_data(training_data, labels)
+    X_train, Y_train = image_to_vectors(training_data, labels)
     
     from sklearn.model_selection import train_test_split
 
     X_train, X_val, Y_train, Y_val = train_test_split(X_train, Y_train, test_size=0.25, random_state=13) 
 
-    k = 3;
-    num_folds = 10
     accuracy_score, f1_score = cross_validate_knn(X_train, Y_train, k, labels, num_folds)
 
     print("KNN Classification Results k = " + str(k) + ":\n")
@@ -192,7 +190,5 @@ def predict_image_emotion(image_path, X_train, Y_train, k, labels):
     prediction = knn_predict_one(X_train, Y_train, image_vector, k, labels)
     return prediction
 
-
-
-
-evaluate_knn(training_data, labels, k=3, num_folds=10)
+if __name__ == "__main__":
+    evaluate_knn(training_data, LABELS, k=3, num_folds=10)
