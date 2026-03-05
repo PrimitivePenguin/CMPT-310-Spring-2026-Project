@@ -46,9 +46,9 @@ else:
 # load test data if necessary
 
 # Find best k using cross-validation, cross-validation is slow so sue normal knn to teset
-# Y_pred = knn_predict(X_train, y_train, X_test, 3, LABELS)
-# test_acc = accuracy(y_test, Y_pred)
-# print(f"k=3: Test accuracy = {test_acc:.4f}")
+Y_pred = knn_predict(X_train, y_train, X_test, 3, LABELS)
+test_acc = accuracy(y_test, Y_pred)
+print(f"k=3: Test accuracy = {test_acc:.4f}")
 
 
 # avg_acc, avg_f1 = cross_validate_knn(X_train, y_train, k, labels=LABELS, num_folds=5)

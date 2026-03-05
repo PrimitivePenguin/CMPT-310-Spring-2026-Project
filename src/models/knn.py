@@ -4,6 +4,7 @@ import glob
 import os
 from sklearn.model_selection import StratifiedKFold
 from src.config import IMAGE_SIZE, LABELS, RAW_TRAIN_DIR
+from tqdm import tqdm
 
 training_data = []
 
@@ -94,7 +95,7 @@ def knn_predict_one(X_train, Y_train, X_test, k, labels):
 #runs knn prediction for all test images
 def knn_predict(X_train, Y_train, X_test, k, labels):
     preds = []
-    for x in X_test:
+    for x in tqdm(X_test):
         pred = knn_predict_one(X_train, Y_train, x, k, labels)
         preds.append(pred)
 
