@@ -18,6 +18,7 @@ def load_training_data(training_data, labels):
 
 # probably change this section to just load already proccessed vectors
 #instead of leading the images and proccessing them every time.
+# this is redundant now
 def image_to_vectors(training_data, labels):
     X_train = []
     Y_train = []
