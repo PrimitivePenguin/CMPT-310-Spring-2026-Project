@@ -82,7 +82,7 @@ def knn_predict_one(X_train, Y_train, X_test, k, labels):
     tied_labels = []
     for i in range(len(counts)):
         if counts[i] == max_count:
-            tied_labels.append(labels[i])
+            tied_labels.append(i)
     
     if len(tied_labels) == 1:
         return tied_labels[0]
