@@ -8,12 +8,13 @@ from src.config import IMAGE_SIZE, LABELS, RAW_TRAIN_DIR
 from tqdm import tqdm
 
 
-# does knn prediction for one image.
-#calculate the distance from the test image to all training images, 
-# find the k closest training images, 
-# and return the most common label among those k closest image
 def knn_predict_image(X_train, Y_train, X_test, k, labels):
-    """Return the KNN prediction of a singular image."""
+    """
+        Return the KNN prediction of a singular image.
+        - Calculate the distance from the test image to all training images.
+        - Find the k closest training images.
+        - Return the most common label among those k closest image.
+    """
     differences = X_train - X_test
     distances = np.sqrt(np.sum(differences ** 2, axis=1))
     k_closest_indexes = np.argsort(distances)   
@@ -60,8 +61,8 @@ def knn_predict_image(X_train, Y_train, X_test, k, labels):
             return Y_train[i]
 
 
-#runs knn prediction for all test images
 def knn_predict(X_train, Y_train, X_test, k, labels):
+    """Run KNN prediction on all test images in set"""
     preds = []
     for x in tqdm(X_test):
         pred = knn_predict_image(X_train, Y_train, x, k, labels)
@@ -71,6 +72,7 @@ def knn_predict(X_train, Y_train, X_test, k, labels):
 
 
 def accuracy(Y_true, Y_pred):  
+    """Return accuracy of KNN evaluation"""
     correct = 0
 
     for i in range(len(Y_true)):
@@ -81,6 +83,7 @@ def accuracy(Y_true, Y_pred):
 
 
 def f1(Y_true, Y_pred, labels):
+    """Return F1-score of KNN evaulation"""
     f1_score = 0
     f1_scores = []
 
@@ -138,9 +141,8 @@ def cross_validate_knn(X_train, Y_train, k_values, labels, num_folds):
     return np.mean(fold_accuracies), np.mean(fold_F1s)
 
 
-# runs cross validation and outputs the average accuracy and F1 score across all folds
 def evaluate_knn(X_train, Y_train, labels, k, num_folds):
-
+    """Run cross validation and output the average accuracy and F1-score across all folds."""
     from sklearn.model_selection import train_test_split
 
     X_train, X_val, Y_train, Y_val = train_test_split(X_train, Y_train, test_size=0.25, random_state=13) 
