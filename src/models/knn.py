@@ -7,42 +7,6 @@ from sklearn.model_selection import StratifiedKFold
 from src.config import IMAGE_SIZE, LABELS, RAW_TRAIN_DIR
 from tqdm import tqdm
 
-training_data = []
-
-#getting a glob to all images for each label classification
-for label in LABELS:
-    training_data.append(os.path.join(RAW_TRAIN_DIR, label, "*.jpg"))
-
-
-# might change image_to_vectors to this.    
-# will load data from already processed vectors from data/processed
-def load_training_data(training_data, labels):
-    return 0, 0
-
-
-# probably change this section to just load already proccessed vectors
-#instead of leading the images and proccessing them every time.
-# this is redundant now
-def image_to_vectors(training_data, labels):
-    X_train = []
-    Y_train = []
-
-    # reads all jpg's in the training_data folders and turns them into vectors
-    for i in range(len(training_data)):
-        for img in glob.glob(training_data[i]):
-            image = cv2.imread(img, cv2.IMREAD_GRAYSCALE)
-            if image is None:
-                continue
-
-            image = cv2.resize(image, (IMAGE_SIZE, IMAGE_SIZE))
-            flatten_image = image.astype(np.float32).flatten() #turn into vector and normalize
-
-            X_train.append(flatten_image)
-            Y_train.append(labels[i])
-
-    
-    return np.array(X_train), np.array(Y_train)
-
 
 # does knn prediction for one image.
 #calculate the distance from the test image to all training images, 
@@ -175,9 +139,8 @@ def cross_validate_knn(X_train, Y_train, k_values, labels, num_folds):
 
 
 # runs cross validation and outputs the average accuracy and F1 score across all folds
-def evaluate_knn(training_data, labels, k, num_folds):
-    X_train, Y_train = image_to_vectors(training_data, labels)
-    
+def evaluate_knn(X_train, Y_train, labels, k, num_folds):
+
     from sklearn.model_selection import train_test_split
 
     X_train, X_val, Y_train, Y_val = train_test_split(X_train, Y_train, test_size=0.25, random_state=13) 
@@ -190,4 +153,10 @@ def evaluate_knn(training_data, labels, k, num_folds):
 
 
 if __name__ == "__main__":
-    evaluate_knn(training_data, LABELS, k=3, num_folds=10)
+    # Load data
+    print("\n--- Setup Data ---")
+    X_train, y_train, X_test, y_test = setup_files(train_new=False)
+    
+    # Evaluate KNN model
+    print("\n--- Evaluation ---")
+    evaluate_knn(X_train, y_train, LABELS, k=3, num_folds=10)
