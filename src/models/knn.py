@@ -4,6 +4,7 @@ import glob
 import os
 from sklearn.model_selection import StratifiedKFold
 from src.config import IMAGE_SIZE, LABELS, RAW_TRAIN_DIR
+from tqdm import tqdm
 
 training_data = []
 
@@ -18,6 +19,7 @@ def load_training_data(training_data, labels):
 
 # probably change this section to just load already proccessed vectors
 #instead of leading the images and proccessing them every time.
+# this is redundant now
 def image_to_vectors(training_data, labels):
     X_train = []
     Y_train = []
@@ -81,7 +83,7 @@ def knn_predict_one(X_train, Y_train, X_test, k, labels):
     tied_labels = []
     for i in range(len(counts)):
         if counts[i] == max_count:
-            tied_labels.append(labels[i])
+            tied_labels.append(i)
     
     if len(tied_labels) == 1:
         return tied_labels[0]
@@ -93,7 +95,7 @@ def knn_predict_one(X_train, Y_train, X_test, k, labels):
 #runs knn prediction for all test images
 def knn_predict(X_train, Y_train, X_test, k, labels):
     preds = []
-    for x in X_test:
+    for x in tqdm(X_test):
         pred = knn_predict_one(X_train, Y_train, x, k, labels)
         preds.append(pred)
 
