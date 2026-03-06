@@ -1,10 +1,12 @@
 import os
 import cv2
 import numpy as np
+import tkinter as tk
+from tkinter import filedialog
 from tqdm import tqdm
-from src.preprocess.face_preprocess import setup_files, load_data, process_test
+from src.preprocess.face_preprocess import setup_files, load_data, process_test, preprocess_image
 from src.config import LABELS
-from src.models.knn import knn_predict, accuracy
+from src.models.knn import knn_predict, accuracy, knn_predict_image
 
 """
 Pipeline for KNN emotion recognition with data augmentation.
@@ -31,7 +33,7 @@ def setup_data():
     
     if not files_exist:
         print("Creating processed data files...")
-        setup_files(train_new=False, mirror=True, rotation=True, zoom=True, shifting=True)
+        setup_files(train_new=False)
     else:
         print("Data files already exist.")
 
@@ -84,6 +86,29 @@ def main():
     
     # # Compare
     # print(f"\nImprovement: {(acc_aug - acc_orig):.4f} ({(acc_aug / acc_orig - 1) * 100:.2f}%)")
+
+    # Run Emotion Recognition on user selected image
+    user_input = ""
+    while(user_input != "q"):
+        print("\n--- Emotion Recognition on User-selected Image ---\n")
+        # Prompt user to select image from file explorer
+        # This opens a tk dialog window but I cannot seem to be able to remove that w/o it breaking T-T
+        root = tk.Tk()
+        image_path = filedialog.askopenfilename(filetypes=[("Image files", ".jpeg .png .jpg")])
+        root.destroy()
+
+        # Make prediction if image is selected
+        if image_path:
+            print(f"Image Selected: {image_path}")
+            image = cv2.imread(image_path)
+            image_vector = preprocess_image(image)
+            prediction = knn_predict_image(X_train, y_train, image_vector, k=3, labels=LABELS)
+            print(f"Image prediction: {LABELS[prediction]}\n")
+        else:
+            print("Image not found or selected.")
+
+        # Prompt user to continue or quit loop
+        user_input = input("Continue or enter (q) to quit.\n")
 
 
 if __name__ == "__main__":
