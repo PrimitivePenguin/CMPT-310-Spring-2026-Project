@@ -1,55 +1,90 @@
 import os
+import cv2
 import numpy as np
-from src.preprocess.face_preprocess import preprocess_image, setup_files, preprocess
+from tqdm import tqdm
+from src.preprocess.face_preprocess import setup_files, load_data, process_test
 from src.config import LABELS
-from src.models.knn import knn_predict, accuracy, cross_validate_knn, knn_predict_one
+from src.models.knn import knn_predict, accuracy
+
+"""
+Pipeline for KNN emotion recognition with data augmentation.
+
+Data augmentation creates 8 versions of each image:
+- Original, Mirrored, Rotated (±10°), Zoomed (±10%), Shifted (±5px)
+
+Workflow:
+1. setup_files() - Process raw data and save vectors
+2. load_data() - Load data (with/without augmentation)
+3. Train and evaluate KNN
+"""
+
+def setup_data():
+    """Create processed data files if they don't exist."""
+    required_files = [
+        "data/processed/train_vectors.npy",
+        "data/processed/train_labels.npy",
+        "data/processed/test_vectors.npy",
+        "data/processed/test_labels.npy"
+    ]
+    
+    files_exist = all(os.path.exists(f) for f in required_files)
+    
+    if not files_exist:
+        print("Creating processed data files...")
+        setup_files(train_new=False, mirror=True, rotation=True, zoom=True, shifting=True)
+    else:
+        print("Data files already exist.")
 
 
-# Test on a single image 
-test_image_path = r"data\raw\\test\angry\PrivateTest_88305.jpg"
+def evaluate_knn(X_train, y_train, X_test, y_test, name="", k=3):
+    """Train KNN and evaluate."""
+    print(f"\n{name}")
+    print(f"Training data: {X_train.shape}, Labels: {y_train.shape}")
+    
+    Y_pred = knn_predict(X_train, y_train, X_test, k, LABELS)
+    test_acc = accuracy(y_test, Y_pred)
+    
+    print(f"k={k}: Accuracy = {test_acc:.4f}")
+    return test_acc
 
 
+def main():
+    # Setup data
+    setup_data()
+    
+    # Test on single image
+    print("\n--- Testing Single Image ---")
+    test_image_path = r"data\raw\test\angry\PrivateTest_88305.jpg"
+    test_image = cv2.imread(test_image_path)
+    if test_image is not None:
+        process_test(test_image)
+    
+    # Load original data (no augmentation)
+    print("\n--- Loading Original Data ---")
+    X_train, y_train, X_test, y_test = load_data(augment=False)
+    
+    # Load augmented data
+    print("\n--- Loading Augmented Data ---")
+    X_train_aug, y_train_aug, X_test_aug, y_test_aug = load_data(augment=True)
+    
+    print(f"Original training data: {X_train.shape}, Labels: {y_train.shape}")
+    print(f"Augmented training data: {X_train_aug.shape}, Labels: {y_train_aug.shape}")
+
+    print(f"Original test data: {X_test.shape}, Labels: {y_test.shape}")
+    print(f"Augmented test data: {X_test_aug.shape}, Labels: {y_test_aug.shape}")
+    
+    # Evaluate
+    print("\n--- Evaluation ---")
+    acc_orig = evaluate_knn(X_train, y_train, X_test, y_test, 
+                            name="Original Data", k=3)
+    print(f"Original Accuracy: {acc_orig:.4f}")
+    # Don't do this, it takes like 20 hours
+    # acc_aug = evaluate_knn(X_train_aug, y_train_aug, X_test_aug, y_test_aug, 
+    #                        name="Augmented Data", k=3)
+    
+    # # Compare
+    # print(f"\nImprovement: {(acc_aug - acc_orig):.4f} ({(acc_aug / acc_orig - 1) * 100:.2f}%)")
 
 
-X_train, y_train, X_test, y_test = setup_files()
-print(f"Loaded training data: {X_train.shape}, {y_train.shape}\nLoaded test data: {X_test.shape}, {y_test.shape}")
-
-if os.path.exists(test_image_path):
-    try:
-        vector = preprocess_image(test_image_path)
-        print(f"Success! Vector shape: {vector.shape}")
-        print(f"Vector dtype: {vector.dtype}")
-        print(f"Min value: {vector.min()}, Max value: {vector.max()}")
-        knn_prediction = knn_predict_one(X_train, y_train, vector, 3, LABELS)
-        print(f"Predicted emotion for test image: {knn_prediction},  label: {LABELS[knn_prediction]}")
-    except Exception as e:
-        print(f"Error: {e}")
-else:
-    print(f"Test image not found at {test_image_path}")
-
-# # train data
-# train_dir = r"data\raw\train"
-# test_dir = r"data\raw\test"
-# X_train, y_train = preprocess(train_dir)
-# print(f"Preprocessed training data: {X_train.shape}, {y_train.shape}")
-
-# # test data
-# X_test, y_test = preprocess(test_dir)
-# print(f"Preprocessed test data: {X_test.shape}, {y_test.shape}")
-
-# # Save preprocessed data to .npy files
-# np.save("data/processed/train_vectors.npy", X_train)
-# np.save("data/processed/train_labels.npy", y_train)
-# np.save("data/processed/test_vectors.npy", X_test)
-# np.save("data/processed/test_labels.npy", y_test)
-
-# load test data if necessary
-
-# Find best k using cross-validation, cross-validation is slow so sue normal knn to teset
-Y_pred = knn_predict(X_train, y_train, X_test, 3, LABELS)
-test_acc = accuracy(y_test, Y_pred)
-print(f"k=3: Test accuracy = {test_acc:.4f}")
-
-
-# avg_acc, avg_f1 = cross_validate_knn(X_train, y_train, k, labels=LABELS, num_folds=5)
-# print(f"k={k}: Mean accuracy = {avg_acc:.4f}, Mean F1 = {avg_f1:.4f}")
+if __name__ == "__main__":
+    main()
