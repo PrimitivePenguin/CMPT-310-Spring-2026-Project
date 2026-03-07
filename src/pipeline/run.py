@@ -38,28 +38,16 @@ def setup_data():
         print("Data files already exist.")
 
 
-def evaluate_knn(X_train, y_train, X_test, y_test, name="", k=3):
-    """Train KNN and evaluate."""
-    print(f"\n{name}")
-    print(f"Training data: {X_train.shape}, Labels: {y_train.shape}")
-    
-    Y_pred = knn_predict(X_train, y_train, X_test, k, LABELS)
-    test_acc = accuracy(y_test, Y_pred)
-    
-    print(f"k={k}: Accuracy = {test_acc:.4f}")
-    return test_acc
-
-
 def main():
     # Setup data
     setup_data()
     
-    # Test on single image
-    print("\n--- Testing Single Image ---")
-    test_image_path = r"data\raw\test\angry\PrivateTest_88305.jpg"
-    test_image = cv2.imread(test_image_path)
-    if test_image is not None:
-        process_test(test_image)
+    # # Test on single image
+    # print("\n--- Testing Single Image ---")
+    # test_image_path = r"data\raw\test\angry\PrivateTest_88305.jpg"
+    # test_image = cv2.imread(test_image_path)
+    # if test_image is not None:
+    #     process_test(test_image)
     
     # Load original data (no augmentation)
     print("\n--- Loading Original Data ---")
@@ -74,18 +62,6 @@ def main():
 
     print(f"Original test data: {X_test.shape}, Labels: {y_test.shape}")
     print(f"Augmented test data: {X_test_aug.shape}, Labels: {y_test_aug.shape}")
-    
-    # Evaluate
-    print("\n--- Evaluation ---")
-    acc_orig = evaluate_knn(X_train, y_train, X_test, y_test, 
-                            name="Original Data", k=3)
-    print(f"Original Accuracy: {acc_orig:.4f}")
-    # Don't do this, it takes like 20 hours
-    # acc_aug = evaluate_knn(X_train_aug, y_train_aug, X_test_aug, y_test_aug, 
-    #                        name="Augmented Data", k=3)
-    
-    # # Compare
-    # print(f"\nImprovement: {(acc_aug - acc_orig):.4f} ({(acc_aug / acc_orig - 1) * 100:.2f}%)")
 
     # Run Emotion Recognition on user selected image
     user_input = ""
