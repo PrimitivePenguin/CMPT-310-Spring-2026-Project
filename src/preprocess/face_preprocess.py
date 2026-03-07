@@ -173,9 +173,6 @@ def preprocess(data_dir, augment_config = None, debug=False):
             
         # Loop through each image in emotion directory
         for img_file in os.listdir(emotion_dir):            
-            if not os.path.exists(img_path):
-                raise FileNotFoundError(f"Image not found at path: {img_path}.")
-
             if img_file.startswith('.') or not img_file.endswith(('.jpg', '.jpeg', '.png')):
                 if debug:
                     print(f"Skipping non-image file: {img_file}")

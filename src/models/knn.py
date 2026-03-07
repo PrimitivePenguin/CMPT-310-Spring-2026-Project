@@ -2,51 +2,19 @@ import numpy as np
 import cv2
 import glob
 import os
+from src.preprocess.face_preprocess import setup_files
 from sklearn.model_selection import StratifiedKFold
 from src.config import IMAGE_SIZE, LABELS, RAW_TRAIN_DIR
 from tqdm import tqdm
 
-training_data = []
 
-#getting a glob to all images for each label classification
-for label in LABELS:
-    training_data.append(os.path.join(RAW_TRAIN_DIR, label, "*.jpg"))
-
-# might change image_to_vectors to this.    
-# will load data from already processed vectors from data/processed
-def load_training_data(training_data, labels):
-    return 0, 0
-
-# probably change this section to just load already proccessed vectors
-#instead of leading the images and proccessing them every time.
-# this is redundant now
-def image_to_vectors(training_data, labels):
-    X_train = []
-    Y_train = []
-
-    # reads all jpg's in the training_data folders and turns them into vectors
-    for i in range(len(training_data)):
-        for img in glob.glob(training_data[i]):
-            image = cv2.imread(img, cv2.IMREAD_GRAYSCALE)
-            if image is None:
-                continue
-
-            image = cv2.resize(image, (IMAGE_SIZE, IMAGE_SIZE))
-            flatten_image = image.astype(np.float32).flatten() #turn into vector and normalize
-
-            X_train.append(flatten_image)
-            Y_train.append(labels[i])
-
-    
-    return np.array(X_train), np.array(Y_train)
-
-
-
-# does knn prediction for one image.
-#calculate the distance from the test image to all training images, 
-# find the k closest training images, 
-# and return the most common label among those k closest image
-def knn_predict_one(X_train, Y_train, X_test, k, labels):
+def knn_predict_image(X_train, Y_train, X_test, k, labels):
+    """
+        Return the KNN prediction of a singular image.
+        - Calculate the distance from the test image to all training images.
+        - Find the k closest training images.
+        - Return the most common label among those k closest image.
+    """
     differences = X_train - X_test
     distances = np.sqrt(np.sum(differences ** 2, axis=1))
     k_closest_indexes = np.argsort(distances)   
@@ -92,16 +60,19 @@ def knn_predict_one(X_train, Y_train, X_test, k, labels):
         if Y_train[i] in tied_labels:
             return Y_train[i]
 
-#runs knn prediction for all test images
+
 def knn_predict(X_train, Y_train, X_test, k, labels):
+    """Run KNN prediction on all test images in set"""
     preds = []
     for x in tqdm(X_test):
-        pred = knn_predict_one(X_train, Y_train, x, k, labels)
+        pred = knn_predict_image(X_train, Y_train, x, k, labels)
         preds.append(pred)
 
     return np.array(preds)
 
+
 def accuracy(Y_true, Y_pred):  
+    """Return accuracy of KNN evaluation"""
     correct = 0
 
     for i in range(len(Y_true)):
@@ -110,7 +81,9 @@ def accuracy(Y_true, Y_pred):
 
     return correct / len(Y_true)
 
+
 def f1(Y_true, Y_pred, labels):
+    """Return F1-score of KNN evaulation"""
     f1_score = 0
     f1_scores = []
 
@@ -167,10 +140,9 @@ def cross_validate_knn(X_train, Y_train, k_values, labels, num_folds):
 
     return np.mean(fold_accuracies), np.mean(fold_F1s)
 
-# runs cross validation and outputs the average accuracy and F1 score across all folds
-def evaluate_knn(training_data, labels, k, num_folds):
-    X_train, Y_train = image_to_vectors(training_data, labels)
-    
+
+def evaluate_knn(X_train, Y_train, labels, k, num_folds):
+    """Run cross validation and output the average accuracy and F1-score across all folds."""
     from sklearn.model_selection import train_test_split
 
     X_train, X_val, Y_train, Y_val = train_test_split(X_train, Y_train, test_size=0.25, random_state=13) 
@@ -181,16 +153,12 @@ def evaluate_knn(training_data, labels, k, num_folds):
     print("Accuracy: " + str(accuracy_score) + "\n")
     print("F1-score: " + str(f1_score) + "\n")
 
-def predict_image_emotion(image_path, X_train, Y_train, k, labels):
-    #1. load the image in with opencv, turn it greyscale and resize it to 48X48
-    image_vector = 0
-
-    #2. flatten the image into a vector and normalize it with flaot32 or float64
-
-
-    #3. use knn_predict_one to predict the emotion of the image and return it 
-    prediction = knn_predict_one(X_train, Y_train, image_vector, k, labels)
-    return prediction
 
 if __name__ == "__main__":
-    evaluate_knn(training_data, LABELS, k=3, num_folds=10)
+    # Load data
+    print("\n--- Setup Data ---")
+    X_train, y_train, X_test, y_test = setup_files(train_new=False)
+    
+    # Evaluate KNN model
+    print("\n--- Evaluation ---")
+    evaluate_knn(X_train, y_train, LABELS, k=3, num_folds=10)

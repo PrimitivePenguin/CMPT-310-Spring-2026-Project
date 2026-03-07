@@ -1,10 +1,12 @@
 import os
 import cv2
 import numpy as np
+import tkinter as tk
+from tkinter import filedialog
 from tqdm import tqdm
-from src.preprocess.face_preprocess import setup_files, load_data, process_test
+from src.preprocess.face_preprocess import setup_files, load_data, process_test, preprocess_image
 from src.config import LABELS
-from src.models.knn import knn_predict, accuracy
+from src.models.knn import knn_predict, accuracy, knn_predict_image
 
 """
 Pipeline for KNN emotion recognition with data augmentation.
@@ -31,33 +33,21 @@ def setup_data():
     
     if not files_exist:
         print("Creating processed data files...")
-        setup_files(train_new=False, mirror=True, rotation=True, zoom=True, shifting=True)
+        setup_files(train_new=False)
     else:
         print("Data files already exist.")
-
-
-def evaluate_knn(X_train, y_train, X_test, y_test, name="", k=3):
-    """Train KNN and evaluate."""
-    print(f"\n{name}")
-    print(f"Training data: {X_train.shape}, Labels: {y_train.shape}")
-    
-    Y_pred = knn_predict(X_train, y_train, X_test, k, LABELS)
-    test_acc = accuracy(y_test, Y_pred)
-    
-    print(f"k={k}: Accuracy = {test_acc:.4f}")
-    return test_acc
 
 
 def main():
     # Setup data
     setup_data()
     
-    # Test on single image
-    print("\n--- Testing Single Image ---")
-    test_image_path = r"data\raw\test\angry\PrivateTest_88305.jpg"
-    test_image = cv2.imread(test_image_path)
-    if test_image is not None:
-        process_test(test_image)
+    # # Test on single image
+    # print("\n--- Testing Single Image ---")
+    # test_image_path = r"data\raw\test\angry\PrivateTest_88305.jpg"
+    # test_image = cv2.imread(test_image_path)
+    # if test_image is not None:
+    #     process_test(test_image)
     
     # Load original data (no augmentation)
     print("\n--- Loading Original Data ---")
@@ -72,18 +62,29 @@ def main():
 
     print(f"Original test data: {X_test.shape}, Labels: {y_test.shape}")
     print(f"Augmented test data: {X_test_aug.shape}, Labels: {y_test_aug.shape}")
-    
-    # Evaluate
-    print("\n--- Evaluation ---")
-    acc_orig = evaluate_knn(X_train, y_train, X_test, y_test, 
-                            name="Original Data", k=3)
-    print(f"Original Accuracy: {acc_orig:.4f}")
-    # Don't do this, it takes like 20 hours
-    # acc_aug = evaluate_knn(X_train_aug, y_train_aug, X_test_aug, y_test_aug, 
-    #                        name="Augmented Data", k=3)
-    
-    # # Compare
-    # print(f"\nImprovement: {(acc_aug - acc_orig):.4f} ({(acc_aug / acc_orig - 1) * 100:.2f}%)")
+
+    # Run Emotion Recognition on user selected image
+    user_input = ""
+    while(user_input != "q"):
+        print("\n--- Emotion Recognition on User-selected Image ---\n")
+        # Prompt user to select image from file explorer
+        # This opens a tk dialog window but I cannot seem to be able to remove that w/o it breaking T-T
+        root = tk.Tk()
+        image_path = filedialog.askopenfilename(filetypes=[("Image files", ".jpeg .png .jpg")])
+        root.destroy()
+
+        # Make prediction if image is selected
+        if image_path:
+            print(f"Image Selected: {image_path}")
+            image = cv2.imread(image_path)
+            image_vector = preprocess_image(image)
+            prediction = knn_predict_image(X_train, y_train, image_vector, k=3, labels=LABELS)
+            print(f"Image prediction: {LABELS[prediction]}\n")
+        else:
+            print("Image not found or selected.")
+
+        # Prompt user to continue or quit loop
+        user_input = input("Continue or enter (q) to quit.\n")
 
 
 if __name__ == "__main__":
