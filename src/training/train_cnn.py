@@ -39,7 +39,6 @@ class EmotionClassifierCNN(nn.Module):
     def forward(self, x):
         #run to get features from convulutional layers
         x = self.features(x)
-
         #run linear layers to get a logits value
         logits = self.linear_relu_stack(x)
         return logits
@@ -88,7 +87,7 @@ def evaluate_cnn(model, test_dataloader, loss_function, device):
     return accuracy, average_eval_loss
 
 
-def train_cnn(model, device, learning_rate, momentum, num_of_epochs, decay_rate=1e-4):
+def train_cnn(model, device, learning_rate, momentum, max_epochs, decay_rate=1e-4):
     from sklearn.model_selection import train_test_split
 
     #creating tensors and dataloaders for easy training 
@@ -113,7 +112,7 @@ def train_cnn(model, device, learning_rate, momentum, num_of_epochs, decay_rate=
     patience = 3
     best_eval_loss = 10000000 
 
-    for epoch in range(num_of_epochs):
+    for epoch in range(max_epochs):
         model.train()
         train_loss = 0.0
 
@@ -132,10 +131,10 @@ def train_cnn(model, device, learning_rate, momentum, num_of_epochs, decay_rate=
             train_loss += batch_loss.item()
 
         average_train_loss = train_loss / len(train_dataloader)
-        print("Epoch " + str(epoch) + " of " + str(num_of_epochs) + ", Average Train Loss: " + str(average_train_loss))
+        print("Epoch " + str(epoch) + " of " + str(max_epochs) + ", Average Train Loss: " + str(average_train_loss))
 
         accuracy, current_eval_loss = evaluate_cnn(model, validation_dataloader, loss_function, device)
-        print("Epoch " + str(epoch) + " of " + str(num_of_epochs) + ", validation Accuracy: " + str(accuracy) + ", Average validation Loss: " + str(current_eval_loss))
+        print("Epoch " + str(epoch) + " of " + str(max_epochs) + ", validation Accuracy: " + str(accuracy) + ", Average validation Loss: " + str(current_eval_loss))
 
         if current_eval_loss < best_eval_loss - 0.0001:
             best_eval_loss = current_eval_loss
@@ -165,13 +164,13 @@ if __name__ == "__main__":
     device = torch.accelerator.current_accelerator().type if torch.accelerator.is_available() else "cpu"
 
     model_exists = os.path.exists("models/cnn_model.pt")
-    if model_exists:
-        print("Model already exists, loading model and continuing training...")
-        model = torch.load("models/cnn_model.pt", map_location=device) 
-        train_cnn(model, device, learning_rate=0.01, momentum=0.9, num_of_epochs=15, decay_rate=1e-4)
-    else:
-        print("Model does not exist, creating model and training...")
+    if not model_exists:
+        print("Model does not exist, creating model and training")
         model = EmotionClassifierCNN(num_classes=len(LABELS)).to(device)
-        train_cnn(model, device, learning_rate=0.01, momentum=0.9, num_of_epochs=15, decay_rate=1e-3)
+        train_cnn(model, device, learning_rate=0.01, momentum=0.9, max_epochs=20, decay_rate=1e-3)
+    else:
+        print("Model already exists, printing model summary:")
+        model = torch.load("models/cnn_model.pt", map_location=device, weights_only=False)
+        print_model_summary(model)
 
 
