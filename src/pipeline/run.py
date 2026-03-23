@@ -4,7 +4,8 @@ import numpy as np
 import tkinter as tk
 from tkinter import filedialog
 from tqdm import tqdm
-from src.preprocess.face_preprocess import setup_files, load_data, process_test, preprocess_image
+from src.data.processed_data import load_data, setup_files
+from src.preprocess.face_preprocess import preprocess_loaded_image
 from src.config import LABELS
 from src.models.knn import knn_predict, accuracy, knn_predict_image
 
@@ -42,13 +43,6 @@ def main():
     # Setup data
     setup_data()
     
-    # # Test on single image
-    # print("\n--- Testing Single Image ---")
-    # test_image_path = r"data\raw\test\angry\PrivateTest_88305.jpg"
-    # test_image = cv2.imread(test_image_path)
-    # if test_image is not None:
-    #     process_test(test_image)
-    
     # Load original data (no augmentation)
     print("\n--- Loading Original Data ---")
     X_train, y_train, X_test, y_test = load_data(augment=False)
@@ -77,7 +71,7 @@ def main():
         if image_path:
             print(f"Image Selected: {image_path}")
             image = cv2.imread(image_path)
-            image_vector = preprocess_image(image)
+            image_vector = preprocess_loaded_image(image)
             prediction = knn_predict_image(X_train, y_train, image_vector, k=3, labels=LABELS)
             print(f"Image prediction: {LABELS[prediction]}\n")
         else:

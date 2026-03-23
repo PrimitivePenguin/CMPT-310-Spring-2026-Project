@@ -2,7 +2,7 @@ import os
 import torch 
 import torch.nn as nn
 from torch.utils.data import TensorDataset, DataLoader
-from src.preprocess.face_preprocess import setup_files 
+from src.data.processed_data import setup_files
 from src.config import IMAGE_SIZE, LABELS, OUTPUT_FEATURE_SIZE
 
 class EmotionClassifierCNN(nn.Module):
@@ -172,5 +172,4 @@ if __name__ == "__main__":
         print("Model already exists, printing model summary:")
         model = torch.load("models/cnn_model.pt", map_location=device, weights_only=False)
         print_model_summary(model)
-
 
