@@ -2,7 +2,7 @@ import numpy as np
 import cv2
 import glob
 import os
-from src.preprocess.face_preprocess import setup_files
+from src.data.processed_data import setup_files
 from sklearn.model_selection import StratifiedKFold
 from src.config import IMAGE_SIZE, LABELS, RAW_TRAIN_DIR
 from tqdm import tqdm
