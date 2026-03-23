@@ -10,7 +10,6 @@ def create_app() -> Flask:
     # allow frontend to call backend for local dev
     CORS(app)
 
-    # Register route blueprints
     app.register_blueprint(predict_bp)
 
     return app
