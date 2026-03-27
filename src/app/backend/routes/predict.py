@@ -1,6 +1,8 @@
 from flask import Blueprint, jsonify, request
 
 from src.app.backend.services.mock_predict import mock_predict
+from src.app.backend.services.cnn_predict import cnn_predict
+from src.app.backend.services.load_cnn import load_cnn
 
 predict_bp = Blueprint("predict", __name__)
 
@@ -17,6 +19,10 @@ def predict():
 
     if image_file.filename == "":
         return jsonify({"error": "No selected file"}), 400
+
+    model = load_cnn()
+    if model == None:
+        return jsonify({"error": "Unable to load model"}), 400
 
     result = mock_predict()
     return jsonify(result), 200
