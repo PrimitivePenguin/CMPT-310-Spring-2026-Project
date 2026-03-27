@@ -43,7 +43,19 @@ export default function HomePage() {
     setPrediction(null);
 
     try {
+      const startTime = Date.now();
+
       const result = await predictEmotion(selectedFile);
+
+      const elapsed = Date.now() - startTime;
+      const minimumLoadingTime = 500;
+
+      if (elapsed < minimumLoadingTime) {
+        await new Promise((resolve) =>
+          setTimeout(resolve, minimumLoadingTime - elapsed)
+        );
+      }
+
       setPrediction(result);
     } catch (err) {
       setError(err.message || "Something went wrong");

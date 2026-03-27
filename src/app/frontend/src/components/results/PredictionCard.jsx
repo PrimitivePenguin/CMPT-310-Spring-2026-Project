@@ -16,12 +16,24 @@ export default function PredictionCard({ prediction, loading, error }) {
 
       {loading ? (
         <div className="flex min-h-[320px] flex-col items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 text-center">
-          <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-cyan-50 text-[#06B6D4]">
-            <SparklesIcon className="h-6 w-6 animate-pulse" />
+          <div className="relative mb-5 flex h-14 w-14 items-center justify-center">
+            <div className="absolute inset-0 rounded-full border-2 border-cyan-100" />
+            <div className="absolute inset-0 animate-spin rounded-full border-2 border-transparent border-t-[#06B6D4]" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-cyan-50 text-[#06B6D4]">
+              <SparklesIcon className="h-5 w-5" />
+            </div>
           </div>
-          <p className="text-base font-medium text-slate-900">Analyzing image...</p>
-          <p className="mt-1 text-sm text-slate-500">
-            This should only take a moment.
+
+          <p className="text-base font-medium text-slate-900">Analyzing image</p>
+
+          <div className="mt-3 flex items-center gap-1">
+            <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-cyan-400 [animation-delay:-0.3s]" />
+            <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-cyan-400 [animation-delay:-0.15s]" />
+            <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-cyan-400" />
+          </div>
+
+          <p className="mt-4 text-sm text-slate-500">
+            Just a quick look at the image.
           </p>
         </div>
       ) : error ? (
