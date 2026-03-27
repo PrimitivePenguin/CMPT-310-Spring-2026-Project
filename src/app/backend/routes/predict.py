@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 
-from ..services.mock_predict import mock_predict
+from src.app.backend.services.mock_predict import mock_predict
 
 predict_bp = Blueprint("predict", __name__)
 
