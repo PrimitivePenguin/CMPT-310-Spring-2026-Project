@@ -1,6 +1,10 @@
 import { SparklesIcon } from "@heroicons/react/24/outline";
+import { emotionMap } from "../../utils/emotionIcons";
 
 export default function PredictionCard({ prediction, loading, error }) {
+  const emotionData = prediction ? emotionMap[prediction.emotion] : null;
+  const Icon = emotionData?.icon;
+
   return (
     <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
       <div className="mb-5">
@@ -35,9 +39,18 @@ export default function PredictionCard({ prediction, loading, error }) {
 
           <div>
             <p className="text-sm font-medium text-slate-500">Detected emotion</p>
-            <h3 className="mt-2 text-3xl font-semibold text-slate-900 capitalize">
-              {prediction.emotion}
-            </h3>
+
+            <div className="mt-3 flex items-center gap-3">
+              {Icon && (
+                <div className={`flex h-10 w-10 items-center justify-center rounded-full bg-white ${emotionData.color}`}>
+                  <Icon className="h-5 w-5" />
+                </div>
+              )}
+
+              <h3 className="text-3xl font-semibold text-slate-900 capitalize">
+                {prediction.emotion}
+              </h3>
+            </div>
           </div>
 
           <div className="mt-8">
