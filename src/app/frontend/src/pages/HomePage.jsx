@@ -5,6 +5,7 @@ import HeroSection from "../components/home/HeroSection";
 import UploadCard from "../components/upload/UploadCard";
 import PredictionCard from "../components/results/PredictionCard";
 import Footer from "../components/layout/Footer";
+import { predictEmotion } from "../services/api";
 
 export default function HomePage() {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -34,23 +35,21 @@ export default function HomePage() {
     setError("");
   }
 
-  function handlePredict() {
-    if (!selectedFile) {
-      return;
-    }
+  async function handlePredict() {
+    if (!selectedFile) return;
 
     setLoading(true);
     setError("");
     setPrediction(null);
 
-    setTimeout(() => {
-      setPrediction({
-        emotion: "happy",
-        confidence: 0.84,
-        source: "mock",
-      });
+    try {
+      const result = await predictEmotion(selectedFile);
+      setPrediction(result);
+    } catch (err) {
+      setError(err.message || "Something went wrong");
+    } finally {
       setLoading(false);
-    }, 800);
+    }
   }
 
   return (
