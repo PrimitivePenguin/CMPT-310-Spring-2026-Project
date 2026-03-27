@@ -24,5 +24,5 @@ def predict():
     if model == None:
         return jsonify({"error": "Unable to load model"}), 400
 
-    result = mock_predict()
+    result = cnn_predict(model, image_file)
     return jsonify(result), 200
