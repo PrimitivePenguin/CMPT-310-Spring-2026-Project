@@ -3,12 +3,15 @@ import { useEffect, useState } from "react";
 import Navbar from "../components/layout/navbar";
 import HeroSection from "../components/home/HeroSection";
 import UploadCard from "../components/upload/UploadCard";
+import PredictionCard from "../components/results/PredictionCard";
 import Footer from "../components/layout/Footer";
 
 export default function HomePage() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState("");
   const [loading, setLoading] = useState(false);
+  const [prediction, setPrediction] = useState(null);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     return () => {
@@ -27,12 +30,25 @@ export default function HomePage() {
 
     setSelectedFile(file);
     setPreviewUrl(file ? URL.createObjectURL(file) : "");
+    setPrediction(null);
+    setError("");
   }
 
   function handlePredict() {
+    if (!selectedFile) {
+      return;
+    }
+
     setLoading(true);
+    setError("");
+    setPrediction(null);
 
     setTimeout(() => {
+      setPrediction({
+        emotion: "happy",
+        confidence: 0.84,
+        source: "mock",
+      });
       setLoading(false);
     }, 800);
   }
@@ -53,12 +69,11 @@ export default function HomePage() {
               loading={loading}
             />
 
-            <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-              <h2 className="text-xl font-semibold text-slate-900">Results</h2>
-              <p className="mt-2 text-sm text-slate-600">
-                Prediction results will appear here once an image is analyzed.
-              </p>
-            </div>
+            <PredictionCard
+              prediction={prediction}
+              loading={loading}
+              error={error}
+            />
           </div>
         </div>
       </section>
