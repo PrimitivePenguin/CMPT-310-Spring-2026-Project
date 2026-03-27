@@ -7,3 +7,6 @@ pytest
 tqdm
 torch
 torchvision
+flask
+flask-cors
+Pillow

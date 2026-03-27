@@ -25,3 +25,29 @@ tests/assets/*
 !data/raw/.gitkeep
 !data/processed/.gitkeep
 !tests/assets/.gitkeep
+
+# Frontend
+node_modules/
+dist/
+build/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+
+# Backend uploads / temp files
+uploads/
+tmp/
+temp/
+
+# Coverage / test output
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Frontend misc
+src/app/frontend/.vite/

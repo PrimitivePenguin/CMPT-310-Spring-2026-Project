@@ -102,6 +102,9 @@ Additional dataset (optional later):
 │   └── processed/
 ├── reports/
 ├── src/
+│   ├── app/
+│       ├── frontend/
+│       └── backend/
 │   ├── data/
 │   ├── models/
 │   │   └── knn.py
