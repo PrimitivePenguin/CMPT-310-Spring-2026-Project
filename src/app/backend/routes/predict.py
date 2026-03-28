@@ -1,6 +1,11 @@
+from flask import current_app as app
 from flask import Blueprint, jsonify, request
 
 from src.app.backend.services.mock_predict import mock_predict
+from src.app.backend.services.cnn_predict import cnn_predict
+from src.app.backend.services.load_cnn import load_cnn
+
+from src.config import CNN_MODEL_PATH
 
 predict_bp = Blueprint("predict", __name__)
 
@@ -10,13 +15,21 @@ def health():
 
 @predict_bp.route("/predict", methods=["POST"])
 def predict():
+    app.logger.info("Starting prediction...")
+
     if "image" not in request.files:
+        app.logger.error("No image file provided")
         return jsonify({"error": "No image file provided"}), 400
 
     image_file = request.files["image"]
 
     if image_file.filename == "":
+        app.logger.error("No selected file")
         return jsonify({"error": "No selected file"}), 400
 
-    result = mock_predict()
+    model = load_cnn(CNN_MODEL_PATH)
+    if model == None:
+        return jsonify({"error": "Unable to load model"}), 400
+
+    result = cnn_predict(model, image_file)
     return jsonify(result), 200

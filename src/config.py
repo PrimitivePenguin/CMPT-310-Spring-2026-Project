@@ -9,3 +9,5 @@ RAW_TEST_DIR = "data/raw/test"
 PROCESSED_DIR = "data/processed"
 
 OUTPUT_FEATURE_SIZE = 256
+
+CNN_MODEL_PATH = "models/cnn_model.pt"
