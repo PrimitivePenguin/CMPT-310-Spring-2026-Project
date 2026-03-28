@@ -3,7 +3,7 @@ import torch
 import torch.nn as nn
 from torch.utils.data import TensorDataset, DataLoader
 from src.data.processed_data import setup_files
-from src.config import IMAGE_SIZE, LABELS, OUTPUT_FEATURE_SIZE
+from src.config import IMAGE_SIZE, LABELS, OUTPUT_FEATURE_SIZE, CNN_MODEL_PATH
 
 class EmotionClassifierCNN(nn.Module):
     def __init__(self, num_classes):
@@ -147,14 +147,12 @@ def train_cnn(model, device, learning_rate, momentum, max_epochs, decay_rate=1e-
         
 
         
-
-    
     accuracy, current_eval_loss = evaluate_cnn(model, test_dataloader, loss_function, device)
     print("Final Test Accuracy: " + str(accuracy) + ", Final Average Test Loss: " + str(current_eval_loss))
     
     # save the model after training
-    torch.save(model.state_dict(), "models/cnn_model.pt")
-    print("Model saved to models/cnn_model.pt")
+    torch.save(model.state_dict(), CNN_MODEL_PATH)
+    print(f"Model saved to {CNN_MODEL_PATH}")
 
 def print_model_summary(model):
     print(model)
@@ -163,7 +161,7 @@ def print_model_summary(model):
 if __name__ == "__main__":
     device = torch.accelerator.current_accelerator().type if torch.accelerator.is_available() else "cpu"
 
-    model_exists = os.path.exists("models/cnn_model.pt")
+    model_exists = os.path.exists(CNN_MODEL_PATH)
     model = EmotionClassifierCNN(num_classes=len(LABELS)).to(device)
     
     if not model_exists:
@@ -171,6 +169,6 @@ if __name__ == "__main__":
         train_cnn(model, device, learning_rate=0.01, momentum=0.9, max_epochs=20, decay_rate=1e-3)
     else:
         print("Model already exists, printing model summary:")
-        model.load_state_dict(torch.load("models/cnn_model.pt", map_location=device, weights_only=False))
+        model.load_state_dict(torch.load(CNN_MODEL_PATH, map_location=device, weights_only=False))
         print_model_summary(model)
 
