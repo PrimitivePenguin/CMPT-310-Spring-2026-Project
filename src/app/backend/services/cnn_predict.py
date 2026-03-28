@@ -7,9 +7,10 @@ from src.preprocess.face_preprocess import preprocess_loaded_image
 from src.config import LABELS, IMAGE_SIZE
 
 def log_prediction_results(probability):
-    app.logger.info("Prediction Results:")    
+    string = "Prediction Results: "  
     for i, label in enumerate(LABELS):
-        app.logger.info(f"> {label}: {probability[0][i]:.4f}")
+        string += f"[{label}: {probability[0][i]:.4f}] "
+    app.logger.info(string)
 
 
 def cnn_predict(model, image_file) -> dict:
