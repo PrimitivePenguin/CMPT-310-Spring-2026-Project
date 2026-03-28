@@ -1,3 +1,4 @@
+from flask import current_app as app
 from flask import Blueprint, jsonify, request
 
 from src.app.backend.services.mock_predict import mock_predict
@@ -12,12 +13,16 @@ def health():
 
 @predict_bp.route("/predict", methods=["POST"])
 def predict():
+    app.logger.info("Starting prediction...")
+
     if "image" not in request.files:
+        app.logger.error("No image file provided")
         return jsonify({"error": "No image file provided"}), 400
 
     image_file = request.files["image"]
 
     if image_file.filename == "":
+        app.logger.error("No selected file")
         return jsonify({"error": "No selected file"}), 400
 
     model = load_cnn()

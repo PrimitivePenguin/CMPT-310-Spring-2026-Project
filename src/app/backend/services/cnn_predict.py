@@ -1,9 +1,15 @@
+from flask import current_app as app
 import torch
 import torch.nn as nn
 import numpy as np
 import cv2
 from src.preprocess.face_preprocess import preprocess_loaded_image
 from src.config import LABELS, IMAGE_SIZE
+
+def log_prediction_results(probability):
+    app.logger.info("Prediction Results:")    
+    for i, label in enumerate(LABELS):
+        app.logger.info(f"> {label}: {probability[0][i]:.4f}")
 
 
 def cnn_predict(model, image_file) -> dict:
@@ -16,6 +22,7 @@ def cnn_predict(model, image_file) -> dict:
     Returns:
         dict: Prediction results. {enotion label, confidence, source}
     """
+    app.logger.info("Running CNN prediction...")
     # Handle image file (FileStorage -> np.array -> tensor)
     image_bytes = image_file.read()
     image_array = np.frombuffer(image_bytes, np.uint8)
@@ -29,9 +36,8 @@ def cnn_predict(model, image_file) -> dict:
     probability = nn.Softmax(dim=1)(logits)
     confidence, pred_emotion = probability.topk(1, dim=1)
 
-    # print("--- Prediction Results ---")    
-    # for i, label in enumerate(LABELS):
-    #     print(f" - {label}: {probability[0][i]:.4f}")
+    if app.debug:
+        log_prediction_results(probability)
     
     return {
         "emotion": LABELS[pred_emotion],
