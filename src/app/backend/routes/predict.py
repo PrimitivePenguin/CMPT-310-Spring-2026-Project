@@ -5,6 +5,8 @@ from src.app.backend.services.mock_predict import mock_predict
 from src.app.backend.services.cnn_predict import cnn_predict
 from src.app.backend.services.load_cnn import load_cnn
 
+from src.config import CNN_MODEL_PATH
+
 predict_bp = Blueprint("predict", __name__)
 
 @predict_bp.route("/health", methods=["GET"])
@@ -25,7 +27,7 @@ def predict():
         app.logger.error("No selected file")
         return jsonify({"error": "No selected file"}), 400
 
-    model = load_cnn()
+    model = load_cnn(CNN_MODEL_PATH)
     if model == None:
         return jsonify({"error": "Unable to load model"}), 400
 
