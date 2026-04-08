@@ -1,158 +1,233 @@
-# Emotion Recognition using KNN
+# MoodLens
 
-**Group 8 – CMPT Project**
+CMPT 310 Group 8 project for facial emotion recognition from uploaded face images.
+
+## Short Overview
+
+This repository contains an end-to-end facial emotion recognition system developed for CMPT 310 in the Spring 2026 semester at Simon Fraser University. The project explores both a classical KNN baseline and a CNN-based approach to compare different modeling strategies for facial emotion recognition, then deploys the result in a web application for local use and demonstration.
+
+It includes:
+
+- image preprocessing and dataset preparation code
+- a KNN baseline pipeline
+- a PyTorch CNN training and inference path
+- a Flask backend with `/health` and `/predict` endpoints
+- a React + Vite frontend for uploading an image and viewing the predicted emotion
 
 ## Team Members
+
 - Sean Wotherspoon
 - Alicia Lam
 - Rafi Rizco
 - Ringo Kojima
 
----
+## Features
 
-## Project Overview
+- Detects and preprocesses faces using OpenCV before classification
+- Supports the seven emotion labels defined in the codebase: `angry`, `disgust`, `fear`, `happy`, `sad`, `surprise`, and `neutral`
+- Builds processed NumPy datasets from raw labeled image folders
+- Applies optional augmentation during dataset preprocessing
+- Trains and saves a CNN model with PyTorch
+- Includes a KNN-based baseline workflow for comparison and manual image testing
+- Exposes backend API routes for health checks and predictions
+- Provides a frontend for image upload, preview, prediction, and confidence display
 
-We are building a facial emotion classification system that takes a facial image as input and outputs a predicted emotion label.
+## Tech Stack
 
-Final system (Milestone 2 goal):
-- Capture image (mobile/web app)
-- CNN model predicts emotion
-- Backend API returns label + confidence
-- Progressive Web App displays result
-
-Baseline system (Milestone 1 – Progress Submission):
-- Preprocess facial image
-- Flatten pixel features
-- Train a K-Nearest Neighbors (KNN) classifier
-- Output predicted emotion + confidence score
-
----
-
-## Target Emotions
-
-For the baseline system, we classify:
-- Angry
-- Disgust
-- Fear
-- Happy
-- Sad
-- Surprise
-- Neutral
-
----
-
-## System Architecture
-
-### Milestone 1 (Current – KNN Baseline)
-
-Pipeline:
-```
-Input Image
-    ↓
-OpenCV Face Detection
-    ↓
-Crop + Resize (48x48)
-    ↓
-Grayscale Conversion
-    ↓
-Flatten to Vector
-    ↓
-KNN Classifier
-    ↓
-Emotion Prediction + Confidence
-```
-
-Train/Validation Split:
-- 75% training
-- 25% validation
-
-Metrics:
-- Accuracy
-- Macro F1 Score
-
-### Milestone 2 (Final System – CNN + App)
-
-From proposal:
-- Custom CNN implemented in PyTorch
-- Flask or FastAPI backend
-- REST endpoint /predict
-- React Progressive Web App frontend
-- Real-time camera emotion detection
-
----
-
-## Dataset
-
-Primary dataset for baseline:
-
-**FER2013 (Kaggle)**
-- 48 × 48 grayscale images
-- 7 emotion labels (0–6)
-- Well-documented and commonly used
-
-Additional dataset (optional later):
-- Facial Expression Dataset by Aaditya Singhal
-
----
+- Python
+- PyTorch
+- scikit-learn
+- OpenCV
+- NumPy
+- Flask + Flask-CORS
+- React
+- Vite
+- Tailwind CSS
+- pytest
 
 ## Repository Structure
-```
+
+```text
+.
 ├── data/
 │   ├── raw/
 │   └── processed/
-├── reports/
+├── models/
+│   └── cnn_model.pt
 ├── src/
 │   ├── app/
-│       ├── frontend/
-│       └── backend/
+│   │   ├── backend/
+│   │   └── frontend/
 │   ├── data/
 │   ├── models/
-│   │   └── knn.py
 │   ├── pipeline/
-│   │   └── run.py
-│   └── preprocess/
-│       └── face_preprocess.py
-├── scripts/
+│   ├── preprocess/
+│   └── training/
 ├── tests/
-│   ├── assets/
-│   └── test_preprocess.py
 ├── requirements.txt
 └── README.md
 ```
 
----
+## Setup and Installation
 
-## Setup Instructions
+### Python environment
 
-### 1. Create virtual environment
+From the repository root:
+
 ```bash
 python -m venv venv
-source venv/bin/activate  # Mac/Linux
-venv\Scripts\activate     # Windows
+source venv/bin/activate
+pip install -r requirements.txt
 ```
 
-### 2. Install dependencies
+Windows activation command:
+
+```bash
+venv\Scripts\activate
+```
+
+### Frontend environment
+
+From `src/app/frontend`:
+
+```bash
+npm install
+```
+
+## Quick Start
+
+For the fastest local setup:
+
+1. Create and activate a virtual environment from the repository root.
+
+```bash
+python -m venv venv
+source venv/bin/activate
+```
+
+2. Install Python dependencies.
+
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3. Run pipeline (in progress)
+3. Start the backend.
+
+```bash
+python -m src.app.backend.app
+```
+
+4. In a separate terminal, move to `src/app/frontend` and install frontend dependencies.
+
+```bash
+npm install
+```
+
+5. Start the frontend.
+
+```bash
+npm run dev
+```
+
+6. Open the local frontend in a browser and upload an image to request a prediction.
+
+## How to Run
+
+### Backend API
+
+From the repository root:
+
+```bash
+python -m src.app.backend.app
+```
+
+This starts the Flask app on `http://127.0.0.1:5000` with:
+
+- `GET /health`
+- `POST /predict`
+
+The `POST /predict` endpoint accepts an uploaded image and returns a JSON response with:
+
+- `emotion`: the predicted emotion label
+- `confidence`: the model confidence score
+- `source`: the prediction source string
+
+### Frontend
+
+From `src/app/frontend`:
+
+```bash
+npm run dev
+```
+
+The Vite dev server proxies `/health` and `/predict` to `http://127.0.0.1:5000`.
+
+### KNN baseline pipeline
+
+From the repository root:
+
 ```bash
 python -m src.pipeline.run
 ```
 
----
+This pipeline prepares processed data if needed, loads the dataset, and opens a local file picker for manual image prediction with the KNN baseline.
 
-## Testing
+### CNN training
 
-We use `pytest` to validate core components of the system.
+From the repository root:
 
-### Run all tests
 ```bash
-python -m pytest
+python -m src.training.train_cnn
 ```
 
-### Run a specific test file
+The training script saves the trained model to `models/cnn_model.pt`.
+
+## How to Reproduce Results or Demos
+
+### Web demo
+
+1. Install Python dependencies from the repository root.
+2. Install frontend dependencies in `src/app/frontend`.
+3. Start the backend with `python -m src.app.backend.app`.
+4. Start the frontend with `npm run dev`.
+5. Upload a face image in the frontend and submit it for prediction.
+
+### Model and preprocessing workflow
+
+To regenerate processed arrays or retrain locally, the code expects labeled raw images under:
+
+- `data/raw/train/<emotion_name>/`
+- `data/raw/test/<emotion_name>/`
+
+Where `<emotion_name>` matches the labels in `src/config.py`.
+
+Relevant commands:
+
 ```bash
-python -m pytest tests/test_preprocess.py
+python -m src.training.train_cnn
+python -m src.pipeline.run
 ```
+
+## Example Output
+
+Example JSON response from `POST /predict`:
+
+```json
+{
+  "emotion": "happy",
+  "confidence": 0.87,
+  "source": "CNN"
+}
+```
+
+## Notes / Limitations
+
+- Raw training and test images are not included in the repository.
+- Reproducing preprocessing or retraining requires the expected `data/raw/train` and `data/raw/test` directory structure.
+- The backend prediction route depends on a loadable CNN model file at `models/cnn_model.pt`.
+- The KNN demo uses a local `tkinter` file dialog, so it is intended for an interactive desktop environment.
+
+## Future Improvements
+
+- Add documented dataset sourcing and dataset preparation instructions to make full reproduction easier from a clean clone.
+- Document expected Python, Node.js, and npm version requirements for a more fully specified setup process.
