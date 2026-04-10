@@ -5,9 +5,16 @@ import numpy as np
 
 from src.config import IMAGE_SIZE
 
+import tempfile
+import shutil
 
 CASCADE_PATH = cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
-face_cascade = cv2.CascadeClassifier(CASCADE_PATH)
+
+_tmp_dir = tempfile.mkdtemp()
+_tmp_cascade = os.path.join(_tmp_dir, "haarcascade_frontalface_default.xml")
+shutil.copy2(CASCADE_PATH, _tmp_cascade)
+
+face_cascade = cv2.CascadeClassifier(_tmp_cascade)
 
 if face_cascade.empty():
     raise RuntimeError(f"Failed to load cascade from: {CASCADE_PATH}")
