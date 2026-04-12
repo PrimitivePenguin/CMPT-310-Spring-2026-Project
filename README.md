@@ -96,6 +96,8 @@ npm install
 
 ## Quick Start
 
+Note: A pre-trained CNN model is included, so the web app can be used immediately.
+
 For the fastest local setup:
 
 1. Create and activate a virtual environment from the repository root.
