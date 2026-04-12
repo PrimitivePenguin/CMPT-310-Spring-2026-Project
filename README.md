@@ -222,9 +222,10 @@ Example JSON response from `POST /predict`:
 
 ## Notes / Limitations
 
-- Raw training and test images are not included in the repository.
+- The trained CNN model file (`models/cnn_model.pt`) is included, so predictions can be run immediately without retraining.
+- Raw training and test images are not included due to size constraints.
 - Reproducing preprocessing or retraining requires the expected `data/raw/train` and `data/raw/test` directory structure.
-- The backend prediction route depends on a loadable CNN model file at `models/cnn_model.pt`.
+- The backend prediction route depends on the presence of the CNN model file.
 - The KNN demo uses a local `tkinter` file dialog, so it is intended for an interactive desktop environment.
 
 ## Future Improvements
